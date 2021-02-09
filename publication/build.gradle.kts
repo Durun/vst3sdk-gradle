@@ -39,14 +39,14 @@ project("pluginterfaces") {
 			fromFiles(
 				builtBy = debug.tasks["cmakeBuild"],
 				root = debug.buildDir
-			) { it.name == libName.dll() }
+			) { it.name == libName.lib() }
 			into(debugOut.resolve(os.category()))
 		}
 		val copyArtifactRelease by creating(Copy::class) {
 			fromFiles(
 				builtBy = release.tasks["cmakeBuild"],
 				root = release.buildDir
-			) { it.name == libName.dll() }
+			) { it.name == libName.lib() }
 			into(releaseOut.resolve(os.category()))
 		}
 		val zipArtifactHeader by creating(Zip::class) {
@@ -78,11 +78,11 @@ fun OperatingSystem.category() = when {
 	else -> throw NotImplementedError("Not available in $familyName")
 }
 
-fun String.dll() = OperatingSystem.current().let {
+fun String.lib() = OperatingSystem.current().let {
 	when {
-		it.isLinux -> "lib$this.so"
+		it.isLinux -> "lib$this.a"
 		it.isMacOsX -> "lib$this.dylib"
-		it.isWindows -> "$this.dll"
+		it.isWindows -> "$this.lib"
 		else -> throw NotImplementedError("Not available in ${it.familyName}")
 	}
 }
