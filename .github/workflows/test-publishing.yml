@@ -24,9 +24,9 @@ jobs:
           sudo apt install clang
           sudo apt install "libstdc++6" libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
       - name: Build library
-        run: |
-          ./gradlew publishToMavenLocal --info
-          find build
+        run: ./gradlew publishToMavenLocal --info
+      - name: List
+        run: find publication/pluginterfaces/build
 
   testOnMacOS:
     runs-on: macOS-latest
@@ -39,9 +39,9 @@ jobs:
       - name: Set up cmake
         uses: jwlawson/actions-setup-cmake@v1.7
       - name: Build library
-        run: |
-          ./gradlew publishToMavenLocal --info
-          find build
+        run: ./gradlew publishToMavenLocal --info
+      - name: List
+        run: find publication/pluginterfaces/build
 
   testOnWindows:
     runs-on: windows-latest
@@ -54,6 +54,6 @@ jobs:
       - name: Set up cmake
         uses: jwlawson/actions-setup-cmake@v1.7
       - name: Build library
-        run: |
-          .\gradlew publishToMavenLocal --info
-          Get-ChildItem -r build
+        run: .\gradlew publishToMavenLocal --info
+      - name: List
+        run: Get-ChildItem -r build
