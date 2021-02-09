@@ -1,0 +1,59 @@
+name: Test publishing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  testOnUbuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 15
+        uses: actions/setup-java@v1
+        with:
+          java-version: 15
+      - name: Set up cmake
+        uses: jwlawson/actions-setup-cmake@v1.7
+      - name: Install Dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install clang
+          sudo apt install "libstdc++6" libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+      - name: Build library
+        run: |
+          ./gradlew publishToMavenLocal --info
+          find build
+
+  testOnMacOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 15
+        uses: actions/setup-java@v1
+        with:
+          java-version: 15
+      - name: Set up cmake
+        uses: jwlawson/actions-setup-cmake@v1.7
+      - name: Build library
+        run: |
+          ./gradlew publishToMavenLocal --info
+          find build
+
+  testOnWindows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 15
+        uses: actions/setup-java@v1
+        with:
+          java-version: 15
+      - name: Set up cmake
+        uses: jwlawson/actions-setup-cmake@v1.7
+      - name: Build library
+        run: |
+          .\gradlew publishToMavenLocal --info
+          Get-ChildItem -r build
