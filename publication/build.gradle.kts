@@ -2,7 +2,6 @@ import org.gradle.internal.os.OperatingSystem
 
 plugins {
 	`cpp-library`
-	`maven-publish`
 }
 
 allprojects {
@@ -68,12 +67,6 @@ project("pluginterfaces") {
 			dependsOn(copyArtifactDebug)
 			dependsOn(copyArtifactRelease)
 		}
-	}
-}
-
-publishing {
-	repositories {
-		mavenLocal()
 	}
 }
 
