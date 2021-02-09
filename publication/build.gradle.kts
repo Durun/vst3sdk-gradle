@@ -72,17 +72,17 @@ project("pluginterfaces") {
 
 
 fun OperatingSystem.category() = when {
-	isLinux -> "linux"
 	isMacOsX -> "macos"
 	isWindows -> "windows"
+	isLinux -> "linux"
 	else -> throw NotImplementedError("Not available in $familyName")
 }
 
 fun String.lib() = OperatingSystem.current().let {
 	when {
-		it.isLinux -> "lib$this.a"
-		it.isMacOsX -> "lib$this.dylib"
+		it.isMacOsX -> "lib$this.a"
 		it.isWindows -> "$this.lib"
+		it.isLinux -> "lib$this.a"
 		else -> throw NotImplementedError("Not available in ${it.familyName}")
 	}
 }
