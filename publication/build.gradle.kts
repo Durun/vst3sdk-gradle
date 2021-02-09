@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
 	`cpp-library`
 	`maven-publish`
@@ -14,37 +16,41 @@ val debug = project(":sdk:debug")
 val release = project(":sdk:release")
 
 project("pluginterfaces") {
-	apply(plugin="cpp-library")
-	apply(plugin="maven-publish")
+	apply(plugin = "cpp-library")
+	apply(plugin = "maven-publish")
 
 	val headerOut = buildDir.resolve("headers/cpp-api-headers")
 	val debugOut = buildDir.resolve("lib/main/debug")
 	val releaseOut = buildDir.resolve("lib/main/release")
+
+	val libName = "pluginterfaces"
 
 	library {
 		linkage.set(listOf(Linkage.STATIC))
 		targetMachines.add(machines.linux.x86_64)
 		targetMachines.add(machines.macOS.x86_64)
 		targetMachines.add(machines.windows.x86_64)
-		baseName.set("pluginterfaces")
+		baseName.set(libName)
 	}
 
+	val os = OperatingSystem.current()
+
 	tasks {
-		val copyArtifactDebugLinux by creating(Copy::class) {
+		val copyArtifactDebug by creating(Copy::class) {
 			fromFiles(
 				builtBy = debug.tasks["cmakeBuild"],
 				root = debug.buildDir
-			) { it.name == "libpluginterfaces.a" }
-			into(debugOut.resolve("linux"))
+			) { it.name == libName.dll() }
+			into(debugOut.resolve(os.category()))
 		}
-		val copyArtifactReleaseLinux by creating(Copy::class) {
+		val copyArtifactRelease by creating(Copy::class) {
 			fromFiles(
 				builtBy = release.tasks["cmakeBuild"],
 				root = release.buildDir
-			) { it.name == "libpluginterfaces.a" }
-			into(releaseOut.resolve("linux"))
+			) { it.name == libName.dll() }
+			into(releaseOut.resolve(os.category()))
 		}
-		val zipArtifactHeaderLinux by creating(Zip::class) {
+		val zipArtifactHeader by creating(Zip::class) {
 			fromFileTree(
 				builtBy = fetch.tasks["checkoutSource"],
 				root = fetch.buildDir,
@@ -54,13 +60,13 @@ project("pluginterfaces") {
 			destinationDirectory.set(headerOut.parentFile)
 		}
 
-		getByName("generateMetadataFileForMainPublication").dependsOn(zipArtifactHeaderLinux)
+		getByName("generateMetadataFileForMainPublication").dependsOn(zipArtifactHeader)
 		withType<AbstractPublishToMaven> {
 			dependsOn(assemble)
 		}
 		assemble {
-			dependsOn(copyArtifactDebugLinux)
-			dependsOn(copyArtifactReleaseLinux)
+			dependsOn(copyArtifactDebug)
+			dependsOn(copyArtifactRelease)
 		}
 	}
 }
@@ -72,7 +78,21 @@ publishing {
 }
 
 
+fun OperatingSystem.category() = when {
+	isLinux -> "linux"
+	isMacOsX -> "macos"
+	isWindows -> "windows"
+	else -> throw NotImplementedError("Not available in $familyName")
+}
 
+fun String.dll() = OperatingSystem.current().let {
+	when {
+		it.isLinux -> "lib$this.so"
+		it.isMacOsX -> "lib$this.dylib"
+		it.isWindows -> "$this.dll"
+		else -> throw NotImplementedError("Not available in ${it.familyName}")
+	}
+}
 
 fun Copy.fromFiles(builtBy: Task, root: File, predicate: (File) -> Boolean) {
 	dependsOn(builtBy)
