@@ -26,13 +26,134 @@ subprojects {
 	}
 }
 
+
+val pluginterfacesHeaders = listOf(
+	"pluginterfaces/base/conststringtable.h",
+	"pluginterfaces/base/falignpop.h",
+	"pluginterfaces/base/falignpush.h",
+	"pluginterfaces/base/fplatform.h",
+	"pluginterfaces/base/fstrdefs.h",
+	"pluginterfaces/base/ftypes.h",
+	"pluginterfaces/base/funknown.h",
+	"pluginterfaces/base/futils.h",
+	"pluginterfaces/base/fvariant.h",
+	"pluginterfaces/base/geoconstants.h",
+	"pluginterfaces/base/ibstream.h",
+	"pluginterfaces/base/icloneable.h",
+	"pluginterfaces/base/ierrorcontext.h",
+	"pluginterfaces/base/ipersistent.h",
+	"pluginterfaces/base/ipluginbase.h",
+	"pluginterfaces/base/istringresult.h",
+	"pluginterfaces/base/iupdatehandler.h",
+	"pluginterfaces/base/keycodes.h",
+	"pluginterfaces/base/pluginbasefwd.h",
+	"pluginterfaces/base/smartpointer.h",
+	"pluginterfaces/base/typesizecheck.h",
+	"pluginterfaces/base/ucolorspec.h",
+	"pluginterfaces/base/ustring.h",
+	"pluginterfaces/gui/iplugview.h",
+	"pluginterfaces/gui/iplugviewcontentscalesupport.h",
+	"pluginterfaces/vst/ivstattributes.h",
+	"pluginterfaces/vst/ivstaudioprocessor.h",
+	"pluginterfaces/vst/ivstautomationstate.h",
+	"pluginterfaces/vst/ivstchannelcontextinfo.h",
+	"pluginterfaces/vst/ivstcomponent.h",
+	"pluginterfaces/vst/ivstcontextmenu.h",
+	"pluginterfaces/vst/ivsteditcontroller.h",
+	"pluginterfaces/vst/ivstevents.h",
+	"pluginterfaces/vst/ivsthostapplication.h",
+	"pluginterfaces/vst/ivstinterappaudio.h",
+	"pluginterfaces/vst/ivstmessage.h",
+	"pluginterfaces/vst/ivstmidicontrollers.h",
+	"pluginterfaces/vst/ivstmidilearn.h",
+	"pluginterfaces/vst/ivstnoteexpression.h",
+	"pluginterfaces/vst/ivstparameterchanges.h",
+	"pluginterfaces/vst/ivstparameterfunctionname.h",
+	"pluginterfaces/vst/ivstphysicalui.h",
+	"pluginterfaces/vst/ivstpluginterfacesupport.h",
+	"pluginterfaces/vst/ivstplugview.h",
+	"pluginterfaces/vst/ivstprefetchablesupport.h",
+	"pluginterfaces/vst/ivstprocesscontext.h",
+	"pluginterfaces/vst/ivstrepresentation.h",
+	"pluginterfaces/vst/ivstunits.h",
+	"pluginterfaces/vst/vstpresetkeys.h",
+	"pluginterfaces/vst/vstpshpack4.h",
+	"pluginterfaces/vst/vstspeaker.h",
+	"pluginterfaces/vst/vsttypes.h"
+)
+
+val baseHeaders = listOf(
+	"base/source/classfactoryhelpers.h",
+	"base/source/fbuffer.h",
+	"base/source/fcleanup.h",
+	"base/source/fcommandline.h",
+	"base/source/fdebug.h",
+	"base/source/fdynlib.h",
+	"base/source/fobject.h",
+	"base/source/fstreamer.h",
+	"base/source/fstring.h",
+	"base/source/timer.h",
+	"base/source/updatehandler.h",
+	"base/thread/include/fcondition.h",
+	"base/thread/include/flock.h"
+)
+
+val sdk_commonHeaders = baseHeaders + listOf(
+	"public.sdk/source/common/openurl.h",
+	"public.sdk/source/common/systemclipboard.h",
+	"public.sdk/source/common/threadchecker.h",
+	"public.sdk/source/vst/vstpresetfile.h"
+)
+
+val sdkHeaders = sdk_commonHeaders + listOf(
+	"public.sdk/source/common/pluginview.h",
+	"public.sdk/source/main/pluginfactory.h"
+)
+
+val sdk_hostingHeaders = sdk_commonHeaders + listOf(
+	"public.sdk/source/vst/hosting/connectionproxy.h",
+	"public.sdk/source/vst/hosting/eventlist.h",
+	"public.sdk/source/vst/hosting/hostclasses.h",
+	"public.sdk/source/vst/hosting/module.h",
+	"public.sdk/source/vst/hosting/parameterchanges.h",
+	"public.sdk/source/vst/hosting/pluginterfacesupport.h",
+	"public.sdk/source/vst/hosting/processdata.h",
+	"public.sdk/source/vst/utility/optional.h",
+	"public.sdk/source/vst/utility/stringconvert.h",
+	"public.sdk/source/vst/utility/uid.h",
+	"public.sdk/source/vst/utility/versionparser.h"
+)
+
 project("pluginterfaces") {
 	configureModule(
 		"pluginterfaces",
-		headerDir = fetch.buildDir
-	) { it.extension == ".h" }
+		headerDir = fetch.buildDir,
+		headers = pluginterfacesHeaders
+	)
 }
 
+project("base") {
+	configureModule("base",
+		headerDir = fetch.buildDir,
+		headers = baseHeaders)
+}
+project("sdk_common") {
+	configureModule("sdk_common",
+		headerDir = fetch.buildDir,
+		headers = sdk_commonHeaders)
+}
+project("sdk") {
+	configureModule(
+		"sdk",
+		headerDir = fetch.buildDir,
+		headers = sdkHeaders)
+}
+project("sdk_hosting") {
+	configureModule(
+		"sdk_hosting",
+		headerDir = fetch.buildDir,
+		headers = sdk_hostingHeaders)
+}
 
 
 // Common configurations
