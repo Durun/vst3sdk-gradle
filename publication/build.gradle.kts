@@ -14,47 +14,57 @@ val fetch = project(":sdk:fetch")
 val debug = project(":sdk:debug")
 val release = project(":sdk:release")
 
-project("pluginterfaces") {
+subprojects {
 	apply(plugin = "cpp-library")
 	apply(plugin = "maven-publish")
-
-	val headerOut = buildDir.resolve("headers/cpp-api-headers")
-	val debugOut = buildDir.resolve("lib/main/debug")
-	val releaseOut = buildDir.resolve("lib/main/release")
-
-	val libName = "pluginterfaces"
 
 	library {
 		linkage.set(listOf(Linkage.STATIC))
 		targetMachines.add(machines.linux.x86_64)
 		targetMachines.add(machines.macOS.x86_64)
 		targetMachines.add(machines.windows.x86_64)
-		baseName.set(libName)
+	}
+}
+
+project("pluginterfaces") {
+	configureModule(
+		"pluginterfaces",
+		headerDir = fetch.buildDir
+	) { it.extension == ".h" }
+}
+
+
+
+// Common configurations
+fun Project.configureModule(libName: String, headerDir: File, headers: List<String>) =
+	configureModule(libName, headerDir) { headers.contains(it.relativeTo(headerDir).toString()) }
+
+fun Project.configureModule(libName: String, headerDir: File, headerPred: (File) -> Boolean) {
+	val outName = this.name
+	val headerOut = buildDir.resolve("headers/cpp-api-headers")
+	val debugOut = buildDir.resolve("lib/main/debug")
+	val releaseOut = buildDir.resolve("lib/main/release")
+
+	library {
+		baseName.set(outName)
 	}
 
 	val os = OperatingSystem.current()
 
 	tasks {
 		val copyArtifactDebug by creating(Copy::class) {
-			fromFiles(
-				builtBy = debug.tasks["cmakeBuild"],
-				root = debug.buildDir
-			) { it.name == libName.lib() }
+			dependsOn(debug.tasks["cmakeBuild"])
+			from(debug.buildDir.resolve("lib/Debug/${libName.lib()}"))
 			into(debugOut.resolve(os.category()))
 		}
 		val copyArtifactRelease by creating(Copy::class) {
-			fromFiles(
-				builtBy = release.tasks["cmakeBuild"],
-				root = release.buildDir
-			) { it.name == libName.lib() }
+			dependsOn(release.tasks["cmakeBuild"])
+			from(release.buildDir.resolve("lib/Release/${libName.lib()}"))
 			into(releaseOut.resolve(os.category()))
 		}
 		val zipArtifactHeader by creating(Zip::class) {
-			fromFileTree(
-				builtBy = fetch.tasks["checkoutSource"],
-				root = fetch.buildDir,
-				subDirs = listOf("pluginterfaces")
-			) { it.extension == "h" }
+			dependsOn(fetch.tasks["checkoutSource"])
+			fromFiles(headerDir, headerPred)
 			archiveBaseName.set(headerOut.name)
 			destinationDirectory.set(headerOut.parentFile)
 		}
@@ -71,6 +81,7 @@ project("pluginterfaces") {
 }
 
 
+// OS Utils
 fun OperatingSystem.category() = when {
 	isMacOsX -> "macos"
 	isWindows -> "windows"
@@ -87,25 +98,13 @@ fun String.lib() = OperatingSystem.current().let {
 	}
 }
 
-fun Copy.fromFiles(builtBy: Task, root: File, predicate: (File) -> Boolean) {
-	dependsOn(builtBy)
-	from(fileTree(root).apply { builtBy(builtBy) }.filter { it.isDirectory || predicate(it) })
-}
-
-fun Copy.fromFileTree(builtBy: Task, root: File, subDirs: List<String>, predicate: (File) -> Boolean) {
-	dependsOn(builtBy)
-	subDirs.forEach {
-		from(fileTree(root.resolve(it)).apply { builtBy(builtBy) })
-	}
-	include { it.isDirectory || predicate(it.file) }
-}
-
-fun Zip.fromFileTree(builtBy: Task, root: File, subDirs: List<String>, predicate: (File) -> Boolean) {
-	dependsOn(builtBy)
-	from(fileTree(root).apply { builtBy(builtBy) })
+// File Utils
+fun Zip.fromFiles(root: File, predicate: (File) -> Boolean) {
+	from(fileTree(root))
+	includeEmptyDirs = false
 	include {
 		when {
-			it.isDirectory -> subDirs.any { dir -> it.relativePath.startsWith(dir) }
+			it.isDirectory -> true
 			else -> predicate(it.file)
 		}
 	}
@@ -113,3 +112,5 @@ fun Zip.fromFileTree(builtBy: Task, root: File, subDirs: List<String>, predicate
 		copyTo(destinationDirectory.get().asFile.resolve(file.relativeTo(root)))
 	}
 }
+
+fun Zip.fromFiles(root: File, files: List<String>) = fromFiles(root) { files.contains(it.relativeTo(root).toString()) }
