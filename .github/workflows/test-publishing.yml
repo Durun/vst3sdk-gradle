@@ -23,6 +23,13 @@ jobs:
           sudo apt update
           sudo apt install clang
           sudo apt install "libstdc++6" libx11-xcb-dev libxcb-util-dev libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+      - name: Build SDK
+        run: ./gradlew sdk:release:cmakeBuild
+      - name: Upload SDK
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: vst3sdk-linuxX64
+          path: sdk/release/build
       - name: Build library
         run: ./gradlew publishToMavenLocal --info
       - name: List
@@ -38,6 +45,13 @@ jobs:
           java-version: 15
       - name: Set up cmake
         uses: jwlawson/actions-setup-cmake@v1.7
+      - name: Build SDK
+        run: ./gradlew sdk:release:cmakeBuild
+      - name: Upload SDK
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: vst3sdk-macosX64
+          path: sdk/release/build
       - name: Build library
         run: ./gradlew publishToMavenLocal --info
       - name: List
@@ -53,7 +67,15 @@ jobs:
           java-version: 15
       - name: Set up cmake
         uses: jwlawson/actions-setup-cmake@v1.7
+      - name: Build SDK
+        run: .\gradlew sdk:release:cmakeBuild
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: vst3sdk-windowsX64
+          path: sdk/release/build
       - name: Build library
         run: .\gradlew publishToMavenLocal --info
       - name: List
         run: Get-ChildItem -r build
+

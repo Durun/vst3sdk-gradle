@@ -98,19 +98,19 @@ val baseHeaders = listOf(
 	"base/thread/include/flock.h"
 )
 
-val sdk_commonHeaders = baseHeaders + listOf(
+val sdk_commonHeaders = /* baseHeaders + */ listOf(
 	"public.sdk/source/common/openurl.h",
 	"public.sdk/source/common/systemclipboard.h",
 	"public.sdk/source/common/threadchecker.h",
 	"public.sdk/source/vst/vstpresetfile.h"
 )
 
-val sdkHeaders = sdk_commonHeaders + listOf(
+val sdkHeaders = /* sdk_commonHeaders + */ listOf(
 	"public.sdk/source/common/pluginview.h",
 	"public.sdk/source/main/pluginfactory.h"
 )
 
-val sdk_hostingHeaders = sdk_commonHeaders + listOf(
+val sdk_hostingHeaders = /* sdk_commonHeaders + */ listOf(
 	"public.sdk/source/vst/hosting/connectionproxy.h",
 	"public.sdk/source/vst/hosting/eventlist.h",
 	"public.sdk/source/vst/hosting/hostclasses.h",

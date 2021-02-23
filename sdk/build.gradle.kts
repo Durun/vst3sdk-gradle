@@ -14,8 +14,8 @@ val checkoutSource: Task = fetch.tasks["checkoutSource"]
 val configureCmake: CMakePluginExtension.() -> Unit = {
 	sourceFolder.set(fetch.buildDir)
 	buildTarget.set("install")
-	def.put("SMTG_ADD_VST3_PLUGINS_SAMPLES", "OFF")
-	def.put("SMTG_ADD_VST3_HOSTING_SAMPLES", "OFF")
+	//def.put("SMTG_ADD_VST3_PLUGINS_SAMPLES", "OFF")
+	//def.put("SMTG_ADD_VST3_HOSTING_SAMPLES", "OFF")
 	def.put("SMTG_CREATE_PLUGIN_LINK", "OFF")
 }
 
